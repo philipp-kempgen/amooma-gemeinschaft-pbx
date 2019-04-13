@@ -61,15 +61,31 @@ function hexUnicodeToUtf8( $hexcp )
 # style \uXXXX sequences
 function utf8_to_unicode_uhex( $str )
 {
+	$tmp = str_replace(
+		array( '\\'  , "\x08", "\x0C", "\n" , "\r" , "\t"  ),
+		array( '\\\\', '\\b' , '\\f' , '\\n', '\\r', '\\t' ),
+		$str
+	);
+	/*
 	return preg_replace(
 		'/[\x{00}-\x{1F}\x{7F}-\x{7FFFFFFF}]/uSe',
+			# Used to work in the bundled PCRE library, but the largest
+			# Unicode value is U+10FFFF. Stopped working maybe in
+			# PCRE 8.32 resp. PHP 5.4.14.
 		'sPrintF("\\u%04x", utf8ToCodepoint("$0"))',
-		str_replace(
-			array( '\\'  , "\x08", "\x0C", "\n" , "\r" , "\t"  ),
-			array( '\\\\', '\\b' , '\\f' , '\\n', '\\r', '\\t' ),
-			$str
-			)
-		);
+			# In PHP 7: "preg_replace(): The /e modifier is no longer
+			# supported, use preg_replace_callback instead"
+		$tmp
+	);
+	 */
+	return preg_replace_callback(
+		'/[\x{00}-\x{1F}\x{7F}-\x{10FFFF}]/uS',
+		# this is an anonymous function that yields a Closure object:
+		function ( $match ) {
+			return sPrintF( "\\u%04x", utf8ToCodepoint( $match[0] ) );
+		},
+		$tmp
+	);
 }
 
 # quotes a string according to RFC 4627 (JSON)
