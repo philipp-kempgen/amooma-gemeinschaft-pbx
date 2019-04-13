@@ -220,10 +220,10 @@ function gs_setlang( $locale )
 		
 		switch (strToLower(subStr($locale,0,2))) {
 			case 'de':
-				setLocale( LC_MESSAGES, array($locale, 'de_DE@euro', 'de_DE', 'de', 'deu_deu', 'ge') );
+				setLocale( LC_MESSAGES, array($locale, 'de_DE.UTF-8', 'de_DE@euro', 'de_DE', 'de', 'deu_deu', 'ge') );
 				break;
 			case 'en':
-				setLocale( LC_MESSAGES, array($locale, 'en_US', 'en') );
+				setLocale( LC_MESSAGES, array($locale, 'en_US.UTF-8', 'en_US', 'en') );
 				break;
 			default:
 				setLocale( LC_MESSAGES, $locale );
