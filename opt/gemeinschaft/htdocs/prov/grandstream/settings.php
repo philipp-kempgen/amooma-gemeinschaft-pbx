@@ -188,7 +188,7 @@ $settings = array();
 function psetting( $name, $val='' )
 {
 	global $settings;
-	if (! preg_match('/^P[0-9]{1,4}$/S', $name)) continue;
+	if (! preg_match('/^P[0-9]{1,4}$/S', $name)) return;
 	$settings[$name] = $val;
 }
 
