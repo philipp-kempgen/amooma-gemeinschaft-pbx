@@ -95,7 +95,7 @@ ini_set('output_handler', '');
 	//ini_set('zlib.output_compression_level', 5);
 	//ini_set('zlib.output_handler', '');
 //}
-if (get_magic_quotes_runtime()) set_magic_quotes_runtime(0);
+if (get_magic_quotes_runtime() && function_exists('set_magic_quotes_runtime')) set_magic_quotes_runtime(0);
 //set_include_path('.');
 set_time_limit(65);
 
@@ -412,6 +412,32 @@ if (function_exists('date_default_timezone_set')) {
 	# PHP >= 5.1.0
 	# needed by date() and other functions
 	@date_default_timezone_set( @date_default_timezone_get() );
+}
+
+# set_magic_quotes_runtime() was deprecated in PHP 5.3 and removed in PHP 7.0
+if (! function_exists('set_magic_quotes_runtime')) {
+	# set_magic_quotes_runtime() was deprecated in PHP 5.3 and
+	# removed in PHP 7.0.
+	# Define a dummy function for compatibility with legacy code.
+	# Problem is that this way legacy code can't conditionally
+	# call set_magic_quotes_runtime() after checking
+	# function_exists('set_magic_quotes_runtime').
+	#
+	function set_magic_quotes_runtime( $new_val )
+	{
+		$backtrace = debug_backtrace();
+		if (is_array($backtrace) && isSet($backtrace[0])) {
+			$file = @$backtrace[0]['file'];
+			if (subStr($file, 0, strLen(GS_DIR)) === GS_DIR) {
+				$file = str_replace(GS_DIR, '', $file);
+			}
+			$line = @$backtrace[0]['line'];
+			$called_from = " (called in $file on line $line)";
+		} else {
+			$called_from = '';
+		}
+		trigger_error( "set_magic_quotes_runtime() has been DEPRECATED!". $called_from, E_USER_DEPRECATED );
+	}
 }
 
 # logger and error handler:
