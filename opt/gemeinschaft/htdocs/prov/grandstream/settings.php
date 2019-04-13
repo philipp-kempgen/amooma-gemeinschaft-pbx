@@ -197,7 +197,18 @@ function _settings_out()
 	global $settings;
 	$data = '';
 	foreach ($settings as $name => $val) {
-		$val = preg_replace("/([^A-Za-z0-9.*_\-])/e", "('$1' == ' ') ? '+' : sprintf('%%%02x',ord('$1'))", $val);
+		# basically rawurlencode():
+		//$val = preg_replace("/([^A-Za-z0-9.*_\-])/e", "('$1' == ' ') ? '+' : sprintf('%%%02x',ord('$1'))", $val);
+		$val = preg_replace_callback(
+			'/[^A-Za-z0-9.*_\\-]/',
+			function( $match ){
+				if ($match[0] == ' ') {
+					return '+';  # encode " " as "+" instead of "%20"
+				}
+				return sprintf( '%%%02x', ord( $match[0] ));  // return '%' . bin2hex( $match[0] );
+			},
+			$val
+		);
 		$data .= $name .'='. $val .'&';
 	}
 	$data .= 'gnkey=0b82';
