@@ -373,6 +373,11 @@ foreach ($phone_types as $phone_type_name => $phone_type_title) {
 
 $pdf->SetCreator('Gemeinschaft');
 $pdf->SetAuthor('Gemeinschaft');	
-$pdf->Output( __('Tastenbeschriftung').'_'.$_SESSION['sudo_user']['info']['user'].'_'.$phone_type.'.pdf', 'D');
+$filename = __('Tastenbeschriftung').'-'.$_SESSION['sudo_user']['info']['user'].'-'.$phone_type.'.pdf';
+header('Content-Type: application/pdf');
+header('Content-Disposition: inline; filename="'. rawurlencode($filename) .'"');
+header('Cache-Control: private, max-age=0, must-revalidate');
+header('Vary: *');
+echo $pdf->Output( $filename, 'S');
 
 ?>
