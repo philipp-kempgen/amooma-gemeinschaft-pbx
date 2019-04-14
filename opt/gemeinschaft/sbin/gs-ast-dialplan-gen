@@ -236,6 +236,22 @@ $content = preg_replace(
 $f = @fOpen($extensions_ael_filename, 'wb');
 if (! $f) {
 	echo "; ERROR: Could not open $extensions_ael_filename for writing!\n";
+	gs_log( GS_LOG_FATAL, "Could not open extensions.ael for writing. (We are running as user \"". posix_getpwuid( posix_geteuid())['name'] .'"!)' );
+	# Maybe we are a sudoer ...
+	$cmd = 'sudo -n -- chown '. qsa( posix_getpwuid( posix_geteuid())['name'] .':'. posix_getgrgid( posix_getegid())['name'] ) .' '. qsa($extensions_ael_filename) .'';
+	gs_log( GS_LOG_NOTICE, "Trying to change the owner of the extensions.ael file: ". $cmd );
+	$err=0; $out=array();
+	@exec( $cmd, $out, $err );
+	if ($err !== 0) {
+		gs_log( GS_LOG_WARNING, "We tried to change the owner of the extensions.ael file but failed." );
+		exit(1);
+	} else {
+		gs_log( GS_LOG_NOTICE, "We were able to change the owner of extensions.ael." );
+	}
+}
+$f = @fOpen($extensions_ael_filename, 'wb');
+if (! $f) {
+	echo "; ERROR: Could not open $extensions_ael_filename for writing!\n";
 	gs_log( GS_LOG_FATAL, "Could not open extensions.ael for writing" );
 	exit(1);
 }
@@ -256,6 +272,7 @@ if ($b < 1) {
 }
 @fClose($f);
 gs_log( GS_LOG_DEBUG, "extensions.ael written." );
+@chmod( $extensions_ael_filename, 0644 );
 
 
 ?>
