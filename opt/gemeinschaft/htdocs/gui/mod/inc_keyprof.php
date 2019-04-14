@@ -1368,7 +1368,7 @@ if ($phone_layout) {
 		'grandstream-gxp2010',
 		'grandstream-gxp2020',
 	), true)) {
-		echo '<a href="',GS_URL_PATH ,'srv/key-layout.php?phone_type=',$phone_type,'" target="_blank" title="',htmlEnt(__("Tastenbeschriftung als PDF-Datei")),'"><img alt="PDF" src="', GS_URL_PATH, 'crystal-svg/16/mime/pdf.png" /> ', htmlEnt('PDF') ,'</a>'."\n";
+		echo '<a href="',GS_URL_PATH ,'srv/key-layout.php?phone_type=',$phone_type,'" target="_blank" type="application/pdf" title="',htmlEnt(__("Tastenbeschriftung als PDF-Datei")),'"><img alt="PDF" src="', GS_URL_PATH, 'crystal-svg/16/mime/pdf.png" /> ', htmlEnt('PDF') ,'</a>'."\n";
 	} else {
 		echo '<small>(', htmlEnt(__("Tastenbeschriftung als PDF-Datei für dieses Telefon-Modell nicht verfügbar")) ,')</small>', "\n";
 	}
