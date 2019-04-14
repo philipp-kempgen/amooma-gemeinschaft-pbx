@@ -236,7 +236,7 @@ $content = preg_replace(
 $f = @fOpen($extensions_ael_filename, 'wb');
 if (! $f) {
 	echo "; ERROR: Could not open $extensions_ael_filename for writing!\n";
-	gs_log( GS_LOG_WARNING, "Could not open extensions.ael for writing" );
+	gs_log( GS_LOG_FATAL, "Could not open extensions.ael for writing" );
 	exit(1);
 }
 
@@ -249,12 +249,13 @@ $content =
 $b = @fWrite($f, $content, strLen($content));
 if ($b < 1) {
 	echo "; ERROR: Failed to write to $extensions_ael_filename!\n";
-	gs_log( GS_LOG_WARNING, "Failed to write to extensions.ael" );
+	gs_log( GS_LOG_FATAL, "Failed to write to extensions.ael" );
 	exit(1);
 } else {
 	echo "; extensions.ael written.\n";
 }
 @fClose($f);
+gs_log( GS_LOG_DEBUG, "extensions.ael written." );
 
 
 ?>
