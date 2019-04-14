@@ -5,3 +5,6 @@ opt/gemeinschaft/etc/asterisk/extensions.ael
 opt/gemeinschaft/sounds/de-DE-tts
 etc/gemeinschaft/.gemeinschaft-version
 
+# vim swap files:
+.*.swp
+
