@@ -212,6 +212,9 @@ ORDER BY `ord`'
 			$group_info = gs_group_info_get(Array($route['user_grp_id']));
 			$group_name = $group_info[0]['title'];
 		}
+		else {
+			$group_name = null;
+		}
 		
 		echo '<tr class="', ($i%2 ? 'even':'odd') ,'">', "\n";
 		
@@ -239,7 +242,7 @@ ORDER BY `ord`'
 		echo '&thinsp;-&thinsp;';
 		echo subStr($route['ht'],0,2) .'<sup>'. subStr($route['ht'],3,2) .'</sup>';
 		echo ' </td>', "\n";
-		echo '<td>', htmlEnt($group_name) ,' </td>', "\n";
+		echo '<td>', ($group_name !== null ? htmlEnt($group_name) : '<i>('. htmlEnt(__("alle")) .')</i>') ,' </td>', "\n";
 		echo '<td class="pre">', htmlEnt($route['pat']) ,' </td>', "\n";
 		
 		$gate_grps = array();
