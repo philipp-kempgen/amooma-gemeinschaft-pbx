@@ -31,17 +31,21 @@ defined('GS_VALID') or die('No direct access.');
 require_once( GS_DIR .'inc/quote_shell_arg.php' );
 
 
-function _grep_mysql_socket( $str )
+function _grep_mysql_sockets( $str )
 {
-	if (preg_match('/(\/(?:var|tmp)\/[a-z\.\-_\/]+)/', $str, $m)) {
-		$filename = $m[1];
-		if (@file_exists($filename)) {
-			if (@fileType($filename) === 'socket') {
-				return $m[1];
+	$sockets = array();
+	if (preg_match_all( '/(?<f>\/(?:var|tmp)\/[a-zA-Z0-9.\-_\/]+)/', $str, $matches, PREG_SET_ORDER ) > 0) {
+		foreach ($matches as $m) {
+			$filename = $m['f'];
+			if (@file_exists($filename)) {
+				if (@fileType($filename) === 'socket') {
+					$sockets[] = $filename;
+				}
 			}
 		}
+		$sockets = array_unique( $sockets );
 	}
-	return null;
+	return $sockets;
 }
 
 function gs_mysql_find_socket( $db_host )
@@ -60,38 +64,50 @@ function gs_mysql_find_socket( $db_host )
 	cat /etc/my.cnf | grep sock
 	bzw.
 	cat /etc/mysql/my.cnf | grep sock
+	
+	Achtung, kann auch hier sein (Debian):
+	/etc/mysql/my.cnf
+	/etc/mysql/debian.cnf
+	/etc/mysql/mariadb.conf.d/50-mysqld_safe.cnf
+	/etc/mysql/mariadb.conf.d/50-server.cnf
+	
+	CentOS:
+	/etc/my.cnf
 	*/
 	
+	$sockets = array();
 	$err=0; $out=array();
-	@exec( 'sed -e '. qsa('/^\[\(mysqld_safe\|safe_mysqld\)\]/,/^\[/!d') .' /etc/mysql/my.cnf 2>>/dev/null | grep \'^socket\' 2>>/dev/null', $out, $err );
-	// Debian
+	@exec( '( find /etc/mysql/ -name *.cnf -type f -print0 2>>/dev/null \
+		; find /etc/my.cnf -type f -print0 2>>/dev/null ) \
+		| xargs -0 -L 1 -n 1 --no-run-if-empty sed -e '. qsa('/^\[\(mysqld\|mysqld_safe\|safe_mysqld\|client\|mysql_upgrade\)\]/,/^\[/!d') .' \
+		| grep "^socket\\b" 2>>/dev/null', $out, $err );
 	if ($err === 0) {
-		$socket = _grep_mysql_socket(implode("\n",$out));
+		$sockets = _grep_mysql_sockets( implode( "\n", $out ));
 	}
 	
-	if ($socket === null) {
-		$err=0; $out=array();
-		@exec( 'sed -e '. qsa('/^\[\(mysqld_safe\|safe_mysqld\)\]/,/^\[/!d') .' /etc/my.cnf 2>>/dev/null | grep \'^socket\' 2>>/dev/null', $out, $err );
-		// CentOS
-		if ($err === 0) {
-			$socket = _grep_mysql_socket(implode("\n",$out));
-		}
-		
-		if ($socket === null) {
+	if (count( $sockets ) !== 0) {
+		gs_log(GS_LOG_DEBUG, 'Found MySQL sockets in MySQL config.: '. implode(', ', $sockets));
+	} else {
+		gs_log(GS_LOG_NOTICE, 'Did not find MySQL sockets in MySQL config.');
 			$err=0; $out=array();
-			@exec( 'mysqladmin -s variables | grep socket 2>>/dev/null', $out, $err );
+			# We have to use sudo here to connect to MySQL
+			# as root (alternatively make sure the Apache
+			# user has access to MySQL).
+			@exec( 'sudo -n -- mysqladmin -s variables | grep -E -e \'\\bsocket\\b\' 2>>/dev/null', $out, $err );
 			// should work everywhere if mysqladmin is available
 			if ($err === 0) {
-				$socket = _grep_mysql_socket(implode("\n",$out));
+				$sockets = _grep_mysql_sockets( implode( "\n", $out ));
 			}
 			
-			if ($socket === null) {
+			if (count( $sockets ) !== 0) {
+				gs_log(GS_LOG_DEBUG, 'Found MySQL sockets via mysqladmin: '. implode(', ', $sockets));
+			} else {
+				gs_log(GS_LOG_NOTICE, 'Did not find MySQL sockets via mysqladmin.');
 				gs_log(GS_LOG_WARNING, 'Could not find MySQL socket');
 			}
-		}
 	}
 	
-	return ($socket !== null) ? $socket : null;
+	return ((count( $sockets ) !== 0) ? $socket[0] : null );
 }
 
 
