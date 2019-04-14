@@ -1360,7 +1360,9 @@ if ($phone_layout) {
 	echo '<br />' ,"\n";
 
 	if (in_array($phone_type, array('snom-300','snom-320','snom-360','snom-370','grandstream-gxp2000','grandstream-gxp2010','grandstream-gxp2020'), true))
-		echo '<a href="',GS_URL_PATH ,'srv/key-layout.php?phone_type=',$phone_type,'"><img alt="PDF" src="', GS_URL_PATH, 'crystal-svg/16/mime/pdf.png" /></a>'."\n"; 
+		echo '<a href="',GS_URL_PATH ,'srv/key-layout.php?phone_type=',$phone_type,'" target="_blank" title="',htmlEnt(__("Tastenbeschriftung als PDF-Datei")),'"><img alt="PDF" src="', GS_URL_PATH, 'crystal-svg/16/mime/pdf.png" /> ', htmlEnt('PDF') ,'</a>'."\n";
+	else
+		echo '<small>(', htmlEnt(__("Tastenbeschriftung als PDF-Datei für dieses Telefon-Modell nicht verfügbar")) ,')</small>', "\n";
 
 	echo $save_bt;
 }
