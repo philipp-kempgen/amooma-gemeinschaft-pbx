@@ -86,9 +86,10 @@ if ($action === 'dialplan-reload') {
 	gs_log(GS_LOG_DEBUG, "Reloading local Asterisk dialplan");
 	echo "Reloading <b>local</b> Asterisk dialplan\n";
 	@ob_flush(); @flush();
-	passThru( 'sudo '. qsa(GS_DIR.'sbin/start-asterisk') .' --dialplan', $err );
+	passThru( 'sudo -n '. qsa(GS_DIR.'sbin/start-asterisk') .' --dialplan', $err );
 	echo "\n", '&rarr; <b>', ($err==0 ? 'OK':'ERR') ,'</b>' ,"\n\n";
 	
+	if (! gs_get_conf('GS_INSTALLATION_TYPE_SINGLE')) {
 	$rs = $DB->execute( 'SELECT `host` FROM `hosts` WHERE `is_foreign` = 0' );
 	while ($r = $rs->fetchRow())
 	{
@@ -110,6 +111,7 @@ if ($action === 'dialplan-reload') {
 		*/
 		echo "\n", '&rarr; <b>', ($err==0 ? 'OK':'ERR') ,'</b>' ,"\n\n";
 	}
+	}
 	
 	@ob_implicit_flush(0);
 	echo '</pre>';
@@ -124,9 +126,10 @@ elseif ($action === 'reload') {
 	gs_log(GS_LOG_DEBUG, "Reloading local Asterisk");
 	echo "Reloading <b>local</b> Asterisk\n";
 	@ob_flush(); @flush();
-	passThru( 'sudo '. qsa(GS_DIR.'sbin/start-asterisk'), $err );
+	passThru( 'sudo -n '. qsa(GS_DIR.'sbin/start-asterisk'), $err );
 	echo "\n", '&rarr; <b>', ($err==0 ? 'OK':'ERR') ,'</b>' ,"\n\n";
 	
+	if (! gs_get_conf('GS_INSTALLATION_TYPE_SINGLE')) {
 	$rs = $DB->execute( 'SELECT `host` FROM `hosts` WHERE `is_foreign` = 0' );
 	while ($r = $rs->fetchRow())
 	{
@@ -147,6 +150,7 @@ elseif ($action === 'reload') {
 		}
 		*/
 		echo "\n", '&rarr; <b>', ($err==0 ? 'OK':'ERR') ,'</b>' ,"\n\n";
+	}
 	}
 	
 	@ob_implicit_flush(0);
