@@ -117,23 +117,23 @@ then
 	if git branch --no-color | grep -i 'no branch' 1>>/dev/null 2>>/dev/null
 	then
 		# might be a tag
-		GIT_DESCR=`git describe --all --always`
+		GIT_DESCR=$( git describe --all --always )
 		echo "${GIT_DESCR}"
 		exit 0
 	fi
 	
-	BRANCH=`git branch --no-color | grep '^ *[*] ' | grep -o -Ee '[a-zA-Z0-9\\-_.]+' | head -n 1`
-	if [ -z ${BRANCH} ]; then
-		BRANCH=unknown
+	BRANCH=$( git branch --no-color | grep '^ *[*] ' | grep -o -Ee '[a-zA-Z0-9._\-]+' | head -n 1 )
+	if [ -z "${BRANCH}" ]; then
+		BRANCH="unknown"
 	fi
 	if [ "${BRANCH}" != "master" ]; then
 		BRANCH="branch-${BRANCH}"
 	fi
-	SHA=`git branch --no-color -v | grep '^ *[*] ' | awk '{print $3;}'`
+	SHA=$( git branch --no-color -v | grep '^ *[*] ' | awk '{print $3;}' )
 	if [ -z ${SHA} ]; then
-		SHA=unknown
+		SHA="unknown"
 	fi
-	DATE=`date -u '+%Y%m%d'`
+	DATE=$( date -u '+%Y%m%d' )
 	RESULT="${BRANCH}-${DATE}-${SHA}"
 	echo "${RESULT}"
 	exit 0
