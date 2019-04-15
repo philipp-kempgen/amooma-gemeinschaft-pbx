@@ -129,12 +129,18 @@ function err_handler_quiet( $type, $msg, $file, $line )
 	switch ($type) {
 		case E_NOTICE:
 		case E_USER_NOTICE:
+			if (error_reporting() != 0) {
+				gs_log( GS_LOG_NOTICE, 'PHP: '. $msg .' in '. $file .' on line '. $line );
+			} else {  # suppressed by @
+				//gs_log( GS_LOG_DEBUG , 'PHP: '. $msg .' in '. $file .' on line '. $line .' (suppressed)' );
+			}
+			break;
 		case E_DEPRECATED:
 		case E_USER_DEPRECATED:
 			if (error_reporting() != 0) {
 				gs_log( GS_LOG_NOTICE, 'PHP: '. $msg .' in '. $file .' on line '. $line );
 			} else {  # suppressed by @
-				//gs_log( GS_LOG_DEBUG , 'PHP: '. $msg .' in '. $file .' on line '. $line .' (suppressed)' );
+				gs_log( GS_LOG_NOTICE, 'PHP: '. $msg .' in '. $file .' on line '. $line .' (suppressed)' );
 			}
 			break;
 		case E_STRICT:
