@@ -250,4 +250,96 @@ function gs_add_c_slashes( $str )
 }
 
 
+# Handy function that is supposed to work like exec() but gives
+# access to stderr as well.
+#
+function exec3( $cmd, & $stdout, & $exitcode, & $stderr )
+{
+	$stdout = array();
+	$stderr = array();
+	$exitcode = 0;
+	
+	$descriptorspec = array(
+		0 => array('pipe', 'r'),  // stdin
+		1 => array('pipe', 'w'),  // stdout
+		2 => array('pipe', 'w'),  // stderr
+	);
+	
+	$process = proc_open( $cmd, $descriptorspec, $pipes, null, null );
+	if (! is_resource( $process )) {
+		$exitcode = 1;
+		return false;
+	}
+	fclose( $pipes[0] );
+	
+	/*
+	$_stdout = stream_get_contents( $pipes[1] );
+	$_stderr = stream_get_contents( $pipes[2] );
+	$stdout = preg_split( '/\r[\n]|\n/', $_stdout );
+	$stderr = preg_split( '/\r[\n]|\n/', $_stderr );
+	fclose( $pipes[1] );
+	fclose( $pipes[2] );
+	*/
+	
+	$buffer_len = $prev_buffer_len = 0; 
+	$sleep_ms = 10;
+	$read_fds = array( 1 => true , 2 => true  );
+	$data_fds = array( 1 => ''   , 2 => ''    );
+	stream_set_blocking( $pipes[ 1 ], 0 );
+	stream_set_blocking( $pipes[ 2 ], 0 );
+	
+	// dual reading of STDOUT and STDERR, so one full pipe doesn't block the other because the external script is waiting
+	while (true) {
+		
+		$break = true;
+		
+		foreach ($read_fds as $read_fd => & $read_fd_val) {
+			if ($read_fd_val) {
+				$break = false;
+				if (feof( $pipes[ $read_fd ] )) {
+					fclose( $pipes[ $read_fd ] );
+					$read_fds[ $read_fd ] = false;
+				}
+				else {
+					$str = fgets( $pipes[ $read_fd ], 8192 );
+					$len = strlen( $str );
+					if ($len > 0) {
+						$data_fds[ $read_fd ] .= $str; 
+						$buffer_len += $len;
+					}
+				}
+			}
+		}
+		
+		if ($break) {
+			//$status = proc_get_status( $process );
+			//if ($status['running']) $break = false;
+			//
+			//if ($break) {
+				break;
+			//}
+		}
+		
+		if ($buffer_len > $prev_buffer_len) {
+			$prev_buffer_len = $buffer_len;
+			$sleep_ms = 10;
+		}
+		else {
+			usleep( $sleep_ms * 1000 ); // sleep for $ms milliseconds
+			if ($sleep_ms < 160) {
+				$sleep_ms = $sleep_ms * 2;
+			}
+		}
+	}
+	
+	$status = proc_get_status( $process );
+	$ret = proc_close( $process );
+	$exitcode = ($status['running'] ? $ret : $status['exitcode']);
+	
+	$stdout = preg_split( '/\r[\n]|\n/', $data_fds[1] );
+	$stderr = preg_split( '/\r[\n]|\n/', $data_fds[2] );
+	
+	return null;
+}
+
 ?>

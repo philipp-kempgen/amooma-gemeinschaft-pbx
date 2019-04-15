@@ -75,11 +75,13 @@ class PhoneCapability_grandstream extends PhoneCapability
 		if (strToLower(subStr($infile, -4, 4)) === '.mp3') {
 			# convert mp3 to wav first
 			$wavfile = $infile .'.wav';
-			$cmd = $mpg123 .' -m -w - -n 1000 -q '. qsa($infile) .' > '. qsa($wavfile) .' 2>>/dev/null';
+			$cmd = $mpg123 .' -m -w - -n 1000 -q '. qsa($infile) .' > '. qsa($wavfile);
 			# cuts file after 1000 frames (around 2.3 MB, depending on the rate)
 			# don't use -r 8000 as that doesn't really work for VBR encoded MP3s
-			@exec($cmd, $out, $err);
+			@exec3($cmd, $out, $err, $stderr);
 			if ($err != 0) {
+				gs_log( GS_LOG_WARNING, 'Command failed (exit code '. $err .'):'. $cmd );
+				gs_log( GS_LOG_WARNING, '^ stderr: '. trim(implode(" -- ",$stderr)) );
 				if (is_file($wavfile)) @unlink( $wavfile );
 				return false;
 			}
@@ -88,11 +90,13 @@ class PhoneCapability_grandstream extends PhoneCapability
 		} else
 			$rm_tmp = false;
 		
-		$cmd = 'sox '. qsa($infile) .' -r 8000 -c 1 '. qsa($outfile) .' trim 0 65000s 2>>/dev/null';
+		$cmd = 'sox '. qsa($infile) .' -r 8000 -c 1 '. qsa($outfile) .' trim 0 65000s';
 		# WAV, PCM, 16 kHz, 8 bit, mono
 		# cuts file after 65000 samples (around 65 kB)
-		@exec($cmd, $out, $err);
+		@exec3($cmd, $out, $err, $stderr);
 		if ($err != 0) {
+			gs_log( GS_LOG_WARNING, 'Command failed (exit code '. $err .'):'. $cmd );
+			gs_log( GS_LOG_WARNING, '^ stderr: '. trim(implode(" -- ",$stderr)) );
 			# $err == 2 would be unknown format
 			if (is_file($outfile)) @unlink( $outfile );
 			if ($rm_tmp && is_file($rm_tmp)) @unlink($rm_tmp);
