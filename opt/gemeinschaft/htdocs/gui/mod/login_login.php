@@ -273,6 +273,9 @@ else {
 <div style="text-align:center; width:auto; margin:0 140px 0 0;">
 <span style="line-height:1.4em; color:#999;"><?php
 	
+	if (extension_loaded('apcu')) {
+		$vers = apcu_fetch( 'gemeinschaft_version', $was_stored );
+	} else
 	if (extension_loaded('apc')) {
 		$vers = apc_fetch( 'gemeinschaft_version', $was_stored );
 	} else {
@@ -280,6 +283,9 @@ else {
 	}
 	if (! $was_stored) {  # determine version anyway on the login page
 		$vers = trim(@gs_file_get_contents( '/etc/gemeinschaft/.gemeinschaft-version' ));
+		if (extension_loaded('apcu')) {
+			apcu_store( 'gemeinschaft_version', $vers, 20 );  # store for 20 seconds
+		} else
 		if (extension_loaded('apc')) {
 			apc_store( 'gemeinschaft_version', $vers, 20 );  # store for 20 seconds
 		}
