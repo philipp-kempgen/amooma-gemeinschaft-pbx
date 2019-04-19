@@ -167,7 +167,7 @@ $rs = $DB->execute( 'SELECT `_id`, `name`, `_title` FROM `ast_queues` WHERE `_id
 
 echo '<option value="0"> - </option>' ,"\n";
 if ($rs)
-	while ($r = $rs->fetchrow()) {
+	while ($r = $rs->fetchRow()) {
 		echo '<option value="',$r['_id'],'"', ($r['_id']==$queue_id ? ' selected="selected"' : ''),'>', $r['name'] ,' (', htmlEnt($r['_title']) ,')' ,'</option>' ,"\n";
 }
 

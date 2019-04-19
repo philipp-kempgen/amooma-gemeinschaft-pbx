@@ -214,7 +214,7 @@ if (isGsError($callwaiting)) {
 </form>
 <?php
 $rs = $DB->execute('SELECT `_queue_id` FROM `ast_queue_members` WHERE  `static`=0 AND `_user_id` ='.$user['id']); 
-while ( $queues = $rs->fetchrow()) {
+while ( $queues = $rs->fetchRow()) {
 	$queues_in =  explode(',', $queues['_queue_id']);
 }
 if (empty($queues_in)) {
@@ -248,7 +248,7 @@ if (! empty($queues_avail)) {
 		AND `_id` NOT IN 
 		(SELECT `_queue_id` FROM `ast_queue_members` WHERE `_user_id`='.$user['id']. ')'
 	);
-	while ( $queue_map = $rs->fetchrow()) {
+	while ( $queue_map = $rs->fetchRow()) {
 		echo $queue_map['name'], $queue_map['_title'], "\n";
 		echo '<option value="', (int)$queue_map['_id'], '"', 'title="', htmlEnt( $queue_map['_title']),'"';
 		echo '>',  $queue_map['name'], ' ', $queue_map['_title'], '</option>', "\n";
@@ -270,7 +270,7 @@ echo '<img alt="', __('Abmelden') ,'" src="', GS_URL_PATH,'crystal-svg/16/act/pr
 <select name="queue_id[]" size="5" multiple="multiple">
 <?php
 $rs = $DB->execute('SELECT `queue_name`, `_title`, `_queue_id`, `static`, `_min_agents`  FROM `ast_queue_members`, `ast_queues` WHERE `_user_id`='.$user['id'].'  AND `_queue_id`=`_id`');
-while ( $queue_map = $rs->fetchrow()) {
+while ( $queue_map = $rs->fetchRow()) {
 	$agent_on = $DB->executeGetOne('SELECT count(`_queue_id`) FROM `ast_queue_members` WHERE `_queue_id` ='.  (int)$queue_map['_queue_id']);
 	echo '<option value="', (int)$queue_map['_queue_id'], '"', 'title="', htmlEnt( $queue_map['_title']),'"';
 	if ($queue_map['static'] == '1' || $queue_map['_min_agents'] >= $agent_on) echo 'disabled="disabled"'; 

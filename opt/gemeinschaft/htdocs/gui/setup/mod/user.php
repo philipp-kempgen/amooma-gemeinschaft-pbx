@@ -79,7 +79,7 @@ if (! empty($admin_ids)) {
 $rs = $db->execute('SELECT `user`, `name`, `pin`, `firstname`, `lastname` FROM `users`, `ast_sipfriends_gs` WHERE `id` IN ('.implode(',', $admin_ids).') AND `id`=`_user_id`');
 
 
-while ( $admin = $rs->fetchrow()) {
+while ( $admin = $rs->fetchRow()) {
 echo '<tr>';
 echo '<td>',$admin['user'], '</td><td>', $admin['firstname'], '</td><td>', $admin['lastname'], '</td><td>', $admin['name'], '</td><td>', $admin['pin'], '</td>';
 echo '</tr>';

@@ -119,7 +119,7 @@ elseif ($action === 'logoutall') {
 	// Create Queuelog entry for each queue
 	$ami = new AMI;
 	$ami->ami_login('gscc', 'gspass', '127.0.0.1', 5038);
-	while ($queue_map = $rs->fetchrow()) {
+	while ($queue_map = $rs->fetchRow()) {
 		$agent_on = $db->executeGetOne('SELECT count(`_queue_id`) FROM `ast_queue_members` WHERE `_queue_id` ='.(int)$queue_map['_queue_id']);
 		$min_agent = $db->executeGetOne('SELECT `_min_agents` FROM `ast_queues` WHERE `_id`='.(int)$queue_map['_queue_id']);
 		// Only logoff if min_agents are in queue
@@ -161,7 +161,7 @@ elseif ($action === 'loginall') {
 	);
 	$ami = new AMI;
 	$ami->ami_login('gscc', 'gspass', '127.0.0.1', 5038);
-	while ($queue_map = $rs->fetchrow()) {
+	while ($queue_map = $rs->fetchRow()) {
 		$penalty = $db->executeGetOne('SELECT `penalty` FROM `penalties` WHERE `_user_id`='.$user_id.' AND `_queue_id`='.$queue_map['_id']);
 		if (! $penalty) $penalty='DEFAULT';
 		$interface = 'SIP/'.$user;

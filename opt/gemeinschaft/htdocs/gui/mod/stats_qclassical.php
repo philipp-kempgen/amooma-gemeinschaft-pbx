@@ -88,7 +88,7 @@ $queue_groups   = gs_group_members_get(gs_group_permissions_get($user_groups, 'c
 $rs = $DB->execute( 'SELECT `_id`, `name`, `_title` FROM `ast_queues` WHERE `_id` IN ('.implode(',',$queue_groups).') ORDER BY `name`' );
 
 if ($rs)
-	while ($r = $rs->fetchrow()) {
+	while ($r = $rs->fetchRow()) {
 		echo '<option value="',$r['_id'],'"', ($r['_id']==$queue_id ? ' selected="selected"' : ''),'>', $r['name'] ,' (', htmlEnt($r['_title']) ,')' ,'</option>' ,"\n";
 }
 ?>
